@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Graph</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+
+    <script type="text/javascript">
+        function refreshPoly() {
+            aler("now this works")
+        }
+    </script>
+</head>
+<body>
+    <div id="graph" class="graphDiv">
+        <?xml version="1.0" encoding="utf-8"?>
+        <svg id="viewGraph" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+            viewBox="0 0 2000 2000" style="enable-background:new 0 0 2000 2000;" xml:space="preserve">
+            <g id="mainCircles">
+                <circle id="outer" class="st5" cx="1000" cy="1000" r="802"/>
+                <circle id="middle" class="st5" cx="1000" cy="1000" r="608"/>
+                <circle id="inner" class="st5" cx="1000" cy="1000" r="338"/>
+            </g>
+
+            <!--<g id="segments">
+                <path class="segment first" d="M1600.33,399.67L1000,1000V151C1234.44,151,1446.7,246.03,1600.33,399.67z"/>
+                <path class="segment second" d="M1849,1000h-849l600.33-600.33C1753.97,553.3,1849,765.56,1849,1000z"/>
+                <path class="segment third" d="M1849,1000c0,234.44-95.03,446.7-248.67,600.33L1000,1000H1849z"/>
+                <path class="segment fourth" d="M1600.33,1600.33C1446.7,1753.97,1234.44,1849,1000,1849v-849L1600.33,1600.33z"/>
+                <path class="segment fifth" d="M1000,1000v849c-234.44,0-446.7-95.03-600.33-248.67L1000,1000z"/>
+                <path class="segment sixth" d="M1000,1000l-600.33,600.33C246.03,1446.7,151,1234.44,151,1000H1000z"/>
+                <path class="segment seventh" d="M1000,1000H151c0-234.44,95.03-446.7,248.67-600.33L1000,1000z"/>
+                <path class="segment eighth" d="M1000,151v849L399.67,399.67C553.3,246.03,765.56,151,1000,151z"/>
+            </g>-->
+            <g id="linesInOne">
+                <radialGradient id="SVGID_1_" cx="1000" cy="1000" r="880" gradientUnits="userSpaceOnUse">
+                    <stop  offset="0" style="stop-color:#C4C4C4;stop-opacity:0"/>
+                    <stop  offset="0.18" style="stop-color:#C4C4C4;stop-opacity:0.02"/>
+                    <stop  offset="0.28" style="stop-color:#C4C4C4;stop-opacity:0.3"/>
+                    <stop  offset="0.4194" style="stop-color:#C4C4C4"/>
+                    <stop  offset="0.6645" style="stop-color:#9F9F9F"/>
+                    <stop  offset="0.8724" style="stop-color:#878787"/>
+                    <stop  offset="1" style="stop-color:#7E7E7E"/>
+                </radialGradient>
+                <polygon class="linesUnited" points="1880,995.5 1010.86,995.5 1625.44,380.93 1619.07,374.56 1004.5,989.14 1004.5,120 995.5,120 
+                    995.5,989.14 380.93,374.56 374.56,380.93 989.14,995.5 120,995.5 120,1004.5 989.14,1004.5 374.56,1619.07 380.93,1625.44 
+                    995.5,1010.86 995.5,1880 1004.5,1880 1004.5,1010.86 1619.07,1625.44 1625.44,1619.07 1010.86,1004.5 1880,1004.5 		"/>
+            </g>
+            <g id="segments">
+                <path class="segment first" d="M1563.91,429.72L1004.5,989.14V198.02C1222.56,199.21,1420.02,287.44,1563.91,429.72z"/>
+                <path class="segment second" d="M1801.98,995.5h-791.12l559.42-559.41C1712.56,579.98,1800.79,777.44,1801.98,995.5z"/>
+                <path class="segment third" d="M1801.98,1004.5c-1.19,218.06-89.42,415.52-231.7,559.41l-559.42-559.41H1801.98z"/>
+                <path class="segment fourth" d="M1563.91,1570.28c-143.89,142.28-341.35,230.51-559.41,231.7v-791.12L1563.91,1570.28z"/>
+                <path class="segment fifth" d="M995.5,1010.86v791.12c-218.06-1.19-415.52-89.42-559.41-231.7L995.5,1010.86z"/>
+                <path class="segment sixth" d="M989.14,1004.5l-559.42,559.41c-142.28-143.89-230.51-341.35-231.7-559.41H989.14z"/>
+                <path class="segment seventh" d="M989.14,995.5H198.02c1.19-218.06,89.42-415.52,231.7-559.41L989.14,995.5z"/>
+                <path class="segment eighth" d="M995.5,198.02v791.12L436.09,429.72C579.98,287.44,777.44,199.21,995.5,198.02z"/>
+            </g>
+            <g id="levels">
+                <circle class="agro" cx="1000" cy="1000" r="0"/>
+                <circle class="lie" cx="1000" cy="1000" r="0"/>
+            </g>
+            <g id="linesSelected">
+                <line id="lineFull" class="selLine" x1="999.5" y1="999.5" x2="999.5" y2="999.5" stroke="#B4AFCB"stroke-width="0"/>
+                <line id="linePoint"class="selLine" x1="999.5" y1="999.5" x2="999.5" y2="999.5" stroke="#371DF0"stroke-width="0"/>
+            </g>
+            <polygon id="polyStats"></polygon>
+        </svg>
+    </div>
+    <div class="fields">
+        <input type="number" value="2" id="lie" placeholder="lie">
+        <input type="number" value="6" id="agro" placeholder="agro">
+        <input type="number" value="2" id="extravert" placeholder="extra">
+        <input type="number" value="6" id="spont" placeholder="spont">
+        <input type="number" value="7" id="aggres" placeholder="aggres">
+        <input type="number" value="6" id="rigid" placeholder="rigid">
+        <input type="number" value="6" id="introvers" placeholder="introvers">
+        <input type="number" value="5" id="senzitiv" placeholder="senzitiv">
+        <input type="number" value="7" id="trevozhn" placeholder="trevozhn">
+        <input type="number" value="5" id="labil" placeholder="labil">
+        <button id="btn1">submit</button>
+    </div>
+
+    <script src="graphScript.js"></script>
+</body>
+</html>
