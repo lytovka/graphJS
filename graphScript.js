@@ -13,17 +13,34 @@ class Graph {
 
         this.adjustLevels();
         this.buildPolygon();
-        console.log(this.pointLinesPoints);
     }
 
     highlightSector(sectors, color) {
         var allSectors = this.target.getElementsByClassName("segment");
         if ( typeof color === 'string' && /^#([0-9A-F]{3}){1,2}$/i.test(color)) {
             if (Array.isArray(sectors)) {
+                for (var index = 0; index < 8; index++) {
+                    allSectors[index].style.fill = "none";
+                    document.getElementById((index+1).toString()).style.fill = "none";
+                }
                 for (const sector in sectors) {
+
                     if (sectors[sector] >= 1 && sectors[sector] <= 8) {
                         allSectors[sectors[sector]-1].style.fill = color;
-                        allSectors[sectors[sector]-1].setAttribute("fill-opacity", "0.5");
+                        allSectors[sectors[sector]-1].setAttribute("fill-opacity", "0.3");
+                        
+                        var firstPoint = this.pointLinesPoints[sectors[sector]-1];
+                        if (sectors[sector] === 8) {
+                            var secondPoint = this.pointLinesPoints[0];
+                        }
+                        else {
+                            var secondPoint = this.pointLinesPoints[sectors[sector]]; 
+                        }
+                        var innerPoints = "1000, 1000 ".concat(firstPoint[0].toString(),", ",firstPoint[1].toString()," ",secondPoint[0].toString(),", ",secondPoint[1].toString());
+
+                        document.getElementById(sectors[sector].toString()).setAttribute("points",innerPoints);
+                        document.getElementById(sectors[sector].toString()).style.fill = color;
+                        document.getElementById(sectors[sector].toString()).setAttribute("fill-opacity","0.5");
                     }
                     else {
                         console.log(sectors[sector], " is out of bounds")
@@ -49,7 +66,13 @@ class Graph {
 
         if (this.graphData.agro > 0 && this.graphData.agro <= 9) {
             var aggrLevel = (this.graphData.agro * 89.11).toString();
-            aggr[0].setAttribute("r", aggrLevel);
+            anime({
+                targets: '.agro',
+                r: aggrLevel,
+                easing: 'easeInOutQuint',
+                duration: 300,
+                loop: false
+              });
 
             aggr[0].setAttribute("stroke-width","6");
 
@@ -65,7 +88,13 @@ class Graph {
 
         if (this.graphData.lie > 0 && this.graphData.lie <= 9) {
             var lieLevel = (this.graphData.lie * 89.11).toString();
-            lie[0].setAttribute("r", lieLevel);
+            anime({
+                targets: '.lie',
+                r: lieLevel,
+                easing: 'easeInOutQuint',
+                duration: 300,
+                loop: false
+              });
 
             lie[0].setAttribute("stroke-width","6");
 
@@ -96,15 +125,34 @@ class Graph {
                         this.target.getElementsByClassName(cases[1])[0].setAttribute("stroke-dasharray",(3 * Math.PI * aggrLevel).toString());
                         this.target.getElementsByClassName(cases[1])[0].setAttribute("stroke-width","16");
                         break;
-                    /* ADD LINE HIGHLIGHT */
                     default:
+                        anime({
+                            targets: '.selLine',
+                            strokeDashoffset: [0, anime.setDashoffset],
+                            easing: 'easeInOutQuint',
+                            duration: 100,
+                            direction: 'alternate',
+                            loop: false
+                          });
+
                         document.getElementById("lineFull").setAttribute("stroke-width","20");
                         document.getElementById("lineFull").setAttribute("x2",this.fullLinesPoints[this.lineTraits.indexOf(trait)][0]);
                         document.getElementById("lineFull").setAttribute("y2",this.fullLinesPoints[this.lineTraits.indexOf(trait)][1]);
 
+
                         document.getElementById("linePoint").setAttribute("stroke-width","20");
                         document.getElementById("linePoint").setAttribute("x2",this.pointLinesPoints[this.lineTraits.indexOf(trait)][0]);
                         document.getElementById("linePoint").setAttribute("y2",this.pointLinesPoints[this.lineTraits.indexOf(trait)][1]);
+
+                        anime({
+                            targets: '.selLine',
+                            strokeDashoffset: [anime.setDashoffset, 0],
+                            easing: 'easeInOutQuint',
+                            duration: 300,
+                            direction: 'alternate',
+                            loop: false
+                          });
+                        console.log("anim");
                 }
             }
             else {
@@ -115,8 +163,22 @@ class Graph {
             console.log("input should be string")
         }
     }
-    buildPolygon() {
+    highlightIssues() {
+        document.getElementById("outer").setAttribute("fill-opacity","1");
+        for (var trait in this.lineTraits) {
+            if (this.graphData[this.lineTraits[trait]] < 3 || this.graphData[this.lineTraits[trait]] > 6) {
+                var traitIndex = this.lineTraits.indexOf(this.lineTraits[trait])+1;
+                document.getElementById("circle".concat(traitIndex)).setAttribute("cx",this.pointLinesPoints[traitIndex-1][0]);
+                document.getElementById("circle".concat(traitIndex)).setAttribute("cy",this.pointLinesPoints[traitIndex-1][1]);
+                document.getElementById("circle".concat(traitIndex)).style.fill = "EA3323";
+            }
+        }
+        
+    }
+    buildPoints() {
+        this.points = "";
         var traitIndex = 1;
+        this.pointLinesPoints = [];
         for (const trait in this.lineTraits) {
             var side = this.graphData[this.lineTraits[trait]] * 89.11 * (Math.sqrt(2) / 2);
             var xpoint = 1000;
@@ -178,26 +240,65 @@ class Graph {
                     console.log("error wrong point");
             }
         }
-
-        this.poly.setAttribute("points", this.points);
+    }
+    buildPolygon() {
+        this.buildPoints();
         this.poly.setAttribute("fill","#212121");
         this.poly.setAttribute("fill-opacity","0.1")
         this.poly.setAttribute("stroke", "#000");
         this.poly.setAttribute("stroke-width", "15");
-
-        
+        anime({
+            targets: ".polyMorph",
+            points: [
+                {value: this.points}
+            ],
+            easing: 'easeInOutQuint',
+            duration: 300,
+        });
+    }
+    refreshPolygon() {
+        var traits = ["lie","agro","extravert","spont","aggres","rigid","introvers","senzitiv","trevozhn","labil"];
+        for (var trait in traits) {
+            someData[traits[trait]] = document.getElementById(traits[trait]).value;
+        }
+        this.buildPoints();
+        this.adjustLevels();
+        anime({
+            targets: ".polyMorph",
+            points: [
+                {value: this.points}
+            ],
+            easing: 'easeInOutQuint',
+            duration: 300,
+        });
     }
 }
 
 someData = {"lie":2,"agro":6,"extravert":2,"spont":6,"aggres":7,"rigid":6,"introvers":6,"senzitiv":5,"trevozhn":7,"labil":5}
 graph = new Graph("graph", someData);
 
-document.getElementById("btn1").addEventListener("click", refreshPoly);
+document.getElementById("btn1").addEventListener("click", refreshAUX);
 
-function refreshPoly() {
-    var traits = ["lie","agro","extravert","spont","aggres","rigid","introvers","senzitiv","trevozhn","labil"];
-    for (var trait in traits) {
-        someData[traits[trait]] = document.getElementById(traits[trait]).value;
-    }
-    graph = new Graph("graph", someData);
+function refreshAUX(){
+    graph.refreshPolygon();
+}
+
+document.getElementById("btnHighlight").addEventListener("click", highlightAUX);
+
+function highlightAUX() {
+    graph.highlight(document.getElementById("highlight").value);
+}
+
+document.getElementById("btnSector").addEventListener("click", sectorAUX);
+
+function sectorAUX() {
+    const inputNums = document.getElementById("highlightSectorNums").value.split(", ");
+    const inputColor = document.getElementById("highlightSectorColor").value;
+    graph.highlightSector(inputNums, inputColor);
+}
+
+document.getElementById("btnIssues").addEventListener("click", issuesAUX);
+
+function issuesAUX() {
+    graph.highlightIssues();
 }
