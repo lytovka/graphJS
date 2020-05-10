@@ -61,7 +61,7 @@ class Graph {
                         document.getElementById(sectors[sector].toString()).setAttribute("fill-opacity","0.5");
                     }
                     else {
-                        console.log(sectors[sector], " is out of bounds")
+                        // console.log(sectors[sector], " is out of bounds")
                     }
                 } 
             }
@@ -73,11 +73,11 @@ class Graph {
                 allSectors[sectors-1].setAttribute("fill-opacity", "0.5");
             }
             else {
-                console.log("invalid sector num")
+                // console.log("invalid sector num")
             }
         }
         else {
-            console.log("invalid color input")
+            // console.log("invalid color input")
         }
     }
     dehighlightSectors() {
@@ -179,11 +179,11 @@ class Graph {
                 }
             }
             else {
-                console.log("this trait does not exist on this graph");
+                // console.log("this trait does not exist on this graph");
             }
         }
         else {
-            console.log("input should be string")
+            // console.log("input should be string")
         }
     }
     dehighlight() {
@@ -205,7 +205,7 @@ class Graph {
             this.highlightedTrait = "";
         }
         else {
-            console.log("nothing is highlighted");
+            // console.log("nothing is highlighted");
         }
     }
     highlightIssues() {
@@ -227,13 +227,13 @@ class Graph {
             this.highlightedIssues = false;
             document.getElementById("outer").setAttribute("fill-opacity","0");
             for (var id in this.highlightedIssuesIds) {
-                console.log(this.highlightedIssuesIds[id]);
+                // console.log(this.highlightedIssuesIds[id]);
                 document.getElementById("circle".concat(this.highlightedIssuesIds[id])).setAttribute("fill","none");
             }
             this.highlightedIssuesIds = [];
         }
         else {
-            console.log("issues were not highlighted");
+            // console.log("issues were not highlighted");
         }
     }
     buildPoints() {
@@ -298,7 +298,7 @@ class Graph {
                     this.pointLinesPoints.push([xpoint.toString(),ypoint.toString()]);
                     break;
                 default: 
-                    console.log("error wrong point");
+                    // console.log("error wrong point");
             }
         }
     }
