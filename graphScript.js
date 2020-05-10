@@ -5,7 +5,17 @@ class Graph {
 
         this.poly = document.getElementById("polyStats");
         this.points = "";
-        
+
+        this.highlighted = false;
+        this.highlightedTrait = "";
+
+        this.highlightedSectors = false;
+        this.highlightedSectorNums = [];
+        this.highlightedSectorsColor = "";
+
+        this.highlightedIssues = false;
+        this.highlightedIssuesIds = [];
+
         this.lineTraits = ["extravert","spont","aggres","rigid","introvers","senzitiv","trevozhn","labil"];
         this.fullLinesPoints = [["999.5","119.5"],["1621.75","377.25"],["1879.5","999.5"],["1621.75","1621.75"],
                                 ["999.5","1879.5"],["377.25","1621.75"],["119.5","999.5"],["377.25","377.25"]];
@@ -16,16 +26,14 @@ class Graph {
     }
 
     highlightSector(sectors, color) {
-
         var allSectors = this.target.getElementsByClassName("segment");
         if ( typeof color === 'string' && /^#([0-9A-F]{3}){1,2}$/i.test(color)) {
             if (Array.isArray(sectors)) {
-                for (var index = 0; index < 8; index++) {
-                    allSectors[index].style.fill = "none";
-                    document.getElementById((index+1).toString()).style.fill = "none";
-                }
+                this.dehighlightSectors();
+                this.highlightedSectors = true;
+                this.highlightedSectorNums = sectors;
+                this.highlightedSectorsColor = color;
                 for (const sector in sectors) {
-
                     if (sectors[sector] >= 1 && sectors[sector] <= 8) {
                         allSectors[sectors[sector]-1].style.fill = color;
                         allSectors[sectors[sector]-1].setAttribute("fill-opacity", "0.3");
@@ -58,6 +66,9 @@ class Graph {
                 } 
             }
             else if (Number.isInteger(sectors) && sectors >= 1 && sectors <= 8) {
+                this.highlightedSectors = true;
+                this.highlightedSectorNums = sectors;
+                this.highlightedSectorsColor = color;
                 allSectors[sectors-1].style.fill = color;
                 allSectors[sectors-1].setAttribute("fill-opacity", "0.5");
             }
@@ -68,6 +79,16 @@ class Graph {
         else {
             console.log("invalid color input")
         }
+    }
+    dehighlightSectors() {
+        var allSectors = this.target.getElementsByClassName("segment");
+        for (var index = 0; index < 8; index++) {
+            allSectors[index].style.fill = "none";
+            document.getElementById((index+1).toString()).style.fill = "none";
+        }
+        this.highlightedSectors = false;
+        this.highlightedSectorNums = [];
+        this.highlightedSectorsColor = ""; 
     }
 
     adjustLevels() {
@@ -124,6 +145,9 @@ class Graph {
             var cases = ["lie","agro","extravert","spont","aggres","rigid","introvers","senzitiv","trevozhn","labil"]
             if (cases.includes(trait)) {
                 this.adjustLevels();
+                this.dehighlight();
+                this.highlighted = true;
+                this.highlightedTrait = trait;
                 switch (trait) {
                     case cases[0]:
                         var lieLevel = (this.graphData.lie * 89.11).toString();
@@ -136,19 +160,9 @@ class Graph {
                         this.target.getElementsByClassName(cases[1])[0].setAttribute("stroke-width","16");
                         break;
                     default:
-                        anime({
-                            targets: '.selLine',
-                            strokeDashoffset: [0, anime.setDashoffset],
-                            easing: 'easeInOutQuint',
-                            duration: 100,
-                            direction: 'alternate',
-                            loop: false
-                          });
-
                         document.getElementById("lineFull").setAttribute("stroke-width","20");
                         document.getElementById("lineFull").setAttribute("x2",this.fullLinesPoints[this.lineTraits.indexOf(trait)][0]);
                         document.getElementById("lineFull").setAttribute("y2",this.fullLinesPoints[this.lineTraits.indexOf(trait)][1]);
-
 
                         document.getElementById("linePoint").setAttribute("stroke-width","20");
                         document.getElementById("linePoint").setAttribute("x2",this.pointLinesPoints[this.lineTraits.indexOf(trait)][0]);
@@ -162,7 +176,6 @@ class Graph {
                             direction: 'alternate',
                             loop: false
                           });
-                        console.log("anim");
                 }
             }
             else {
@@ -173,17 +186,55 @@ class Graph {
             console.log("input should be string")
         }
     }
+    dehighlight() {
+        if (this.highlightedTrait === "lie" || this.highlightedTrait === "agro") {
+            this.adjustLevels();
+            this.highlighted = false;
+            this.highlightedTrait = "";
+        }
+        else if (this.highlightedTrait != "") {
+            anime({
+                targets: '.selLine',
+                strokeDashoffset: [0, anime.setDashoffset],
+                easing: 'easeInOutQuint',
+                duration: 100,
+                direction: 'alternate',
+                loop: false
+            });
+            this.highlighted = false;
+            this.highlightedTrait = "";
+        }
+        else {
+            console.log("nothing is highlighted");
+        }
+    }
     highlightIssues() {
+        this.dehighlightIssues();
         document.getElementById("outer").setAttribute("fill-opacity","1");
+        this.highlightedIssues = true;
         for (var trait in this.lineTraits) {
             if (this.graphData[this.lineTraits[trait]] < 3 || this.graphData[this.lineTraits[trait]] > 6) {
                 var traitIndex = this.lineTraits.indexOf(this.lineTraits[trait])+1;
                 document.getElementById("circle".concat(traitIndex)).setAttribute("cx",this.pointLinesPoints[traitIndex-1][0]);
                 document.getElementById("circle".concat(traitIndex)).setAttribute("cy",this.pointLinesPoints[traitIndex-1][1]);
                 document.getElementById("circle".concat(traitIndex)).setAttribute("fill", "#EA3323");
+                this.highlightedIssuesIds.push(traitIndex);
             }
         }
-        
+    }
+    dehighlightIssues() {
+        if (this.highlightedIssues) {
+            this.highlightedIssues = false;
+            document.getElementById("outer").setAttribute("fill-opacity","0");
+            for (var id in this.highlightedIssuesIds) {
+                console.log(this.highlightedIssuesIds[id]);
+                document.getElementById("circle".concat(this.highlightedIssuesIds[id])).setAttribute("fill","none");
+            }
+            this.highlightedIssuesIds = [];
+        }
+        else {
+            console.log("issues were not highlighted");
+        }
     }
     buildPoints() {
         this.points = "";
@@ -267,18 +318,19 @@ class Graph {
         });
     }
     refreshPolygon() {
-        var traits = ["lie","agro","extravert","spont","aggres","rigid","introvers","senzitiv","trevozhn","labil"];
-        for (var trait in traits) {
-            if (document.getElementById(traits[trait]).value > 9) {someData[traits[trait]] = 9; document.getElementById(traits[trait]).value = 9}
-            else if (document.getElementById(traits[trait]).value < 1) {someData[traits[trait]] = 1; document.getElementById(traits[trait]).value = 1}
-            else {someData[traits[trait]] = document.getElementById(traits[trait]).value;}
-        }
         this.buildPoints();
         this.adjustLevels();
-        const inputNums = document.getElementById("highlightSectorNums").value.split(", ");
-        const inputColor = document.getElementById("highlightSectorColor").value;
-        this.highlightSector(inputNums, inputColor);
-        console.log("highlight")
+
+        if (this.highlightedSectors) {
+            this.highlightSector(this.highlightedSectorNums, this.highlightedSectorsColor)
+        }
+        if (this.highlighted) {
+            this.highlight(this.highlightedTrait)
+        }
+        if (this.highlightedIssues) {
+            this.highlightIssues()
+        }
+
         anime({
             targets: ".polyMorph",
             points: [
@@ -290,31 +342,47 @@ class Graph {
     }
 }
 
+
 someData = {"lie":2,"agro":6,"extravert":2,"spont":6,"aggres":7,"rigid":6,"introvers":6,"senzitiv":5,"trevozhn":7,"labil":5}
 graph = new Graph("graph", someData);
 
 document.getElementById("btn1").addEventListener("click", refreshAUX);
 
 function refreshAUX(){
+    var traits = ["lie","agro","extravert","spont","aggres","rigid","introvers","senzitiv","trevozhn","labil"];
+    for (var trait in traits) {
+        if (document.getElementById(traits[trait]).value > 9) {someData[traits[trait]] = 9; document.getElementById(traits[trait]).value = 9}
+        else if (document.getElementById(traits[trait]).value < 1) {someData[traits[trait]] = 1; document.getElementById(traits[trait]).value = 1}
+        else {someData[traits[trait]] = document.getElementById(traits[trait]).value;}
+    }
     graph.refreshPolygon();
 }
 
 document.getElementById("btnHighlight").addEventListener("click", highlightAUX);
-
 function highlightAUX() {
     graph.highlight(document.getElementById("highlight").value);
 }
+document.getElementById("deBtnHighlight").addEventListener("click", deHighlightAUX);
+function deHighlightAUX() {
+    graph.dehighlight();
+}
 
 document.getElementById("btnSector").addEventListener("click", sectorAUX);
-
 function sectorAUX() {
     const inputNums = document.getElementById("highlightSectorNums").value.split(", ");
     const inputColor = document.getElementById("highlightSectorColor").value;
     graph.highlightSector(inputNums, inputColor);
 }
+document.getElementById("deBtnSector").addEventListener("click", deSectorAUX);
+function deSectorAUX() {
+    graph.dehighlightSectors();
+}
 
 document.getElementById("btnIssues").addEventListener("click", issuesAUX);
-
 function issuesAUX() {
     graph.highlightIssues();
+}
+document.getElementById("deBtnIssues").addEventListener("click", deIssuesAUX);
+function deIssuesAUX() {
+    graph.dehighlightIssues();
 }
