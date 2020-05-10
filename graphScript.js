@@ -16,6 +16,7 @@ class Graph {
     }
 
     highlightSector(sectors, color) {
+
         var allSectors = this.target.getElementsByClassName("segment");
         if ( typeof color === 'string' && /^#([0-9A-F]{3}){1,2}$/i.test(color)) {
             if (Array.isArray(sectors)) {
@@ -30,7 +31,8 @@ class Graph {
                         allSectors[sectors[sector]-1].setAttribute("fill-opacity", "0.3");
                         
                         var firstPoint = this.pointLinesPoints[sectors[sector]-1];
-                        if (sectors[sector] === 8) {
+                        
+                        if (sectors[sector] == 8) {
                             var secondPoint = this.pointLinesPoints[0];
                         }
                         else {
@@ -38,7 +40,15 @@ class Graph {
                         }
                         var innerPoints = "1000, 1000 ".concat(firstPoint[0].toString(),", ",firstPoint[1].toString()," ",secondPoint[0].toString(),", ",secondPoint[1].toString());
 
-                        document.getElementById(sectors[sector].toString()).setAttribute("points",innerPoints);
+                        var someSector = document.getElementById(sectors[sector].toString());
+                        anime({
+                            targets: someSector,
+                            points: [
+                                {value: innerPoints}
+                            ],
+                            easing: 'easeInOutQuint',
+                            duration: 300,
+                        });
                         document.getElementById(sectors[sector].toString()).style.fill = color;
                         document.getElementById(sectors[sector].toString()).setAttribute("fill-opacity","0.5");
                     }
@@ -170,7 +180,7 @@ class Graph {
                 var traitIndex = this.lineTraits.indexOf(this.lineTraits[trait])+1;
                 document.getElementById("circle".concat(traitIndex)).setAttribute("cx",this.pointLinesPoints[traitIndex-1][0]);
                 document.getElementById("circle".concat(traitIndex)).setAttribute("cy",this.pointLinesPoints[traitIndex-1][1]);
-                document.getElementById("circle".concat(traitIndex)).style.fill = "EA3323";
+                document.getElementById("circle".concat(traitIndex)).setAttribute("fill", "#EA3323");
             }
         }
         
@@ -259,10 +269,16 @@ class Graph {
     refreshPolygon() {
         var traits = ["lie","agro","extravert","spont","aggres","rigid","introvers","senzitiv","trevozhn","labil"];
         for (var trait in traits) {
-            someData[traits[trait]] = document.getElementById(traits[trait]).value;
+            if (document.getElementById(traits[trait]).value > 9) {someData[traits[trait]] = 9; document.getElementById(traits[trait]).value = 9}
+            else if (document.getElementById(traits[trait]).value < 1) {someData[traits[trait]] = 1; document.getElementById(traits[trait]).value = 1}
+            else {someData[traits[trait]] = document.getElementById(traits[trait]).value;}
         }
         this.buildPoints();
         this.adjustLevels();
+        const inputNums = document.getElementById("highlightSectorNums").value.split(", ");
+        const inputColor = document.getElementById("highlightSectorColor").value;
+        this.highlightSector(inputNums, inputColor);
+        console.log("highlight")
         anime({
             targets: ".polyMorph",
             points: [
